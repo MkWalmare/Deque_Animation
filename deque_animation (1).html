@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animated Deque Visualization</title>
+  <style>
+    body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin-top: 50px; }
+    #deque { display: flex; border: 2px solid #444; padding: 10px; min-width: 400px; height: 60px; }
+    .node { width: 50px; height: 40px; line-height: 40px; text-align: center; border: 1px solid #333; margin: 0 5px; background: #fafafa; transition: opacity 0.5s ease; }
+    #controls { margin-top: 20px; }
+    button { margin: 0 5px; padding: 8px 12px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>Deque Animation</h2>
+  <div id="deque"></div>
+  <div id="controls">
+    <button onclick="addRear()">Add Rear</button>
+    <button onclick="addFront()">Add Front</button>
+    <button onclick="removeFront()">Remove Front</button>
+    <button onclick="removeRear()">Remove Rear</button>
+    <button onclick="LengthDeque()">Length</button>
+    <button onclick="clearDeque()">Clear</button>
+    <button onclick="searchValue()">Search</button>
+    <button onclick="insertAtPosition()">Insert</button>
+  </div>
+  <script>
+    let counter = 1;
+    const deque = document.getElementById('deque');
+    function createNode(content) {
+      const node = document.createElement('div');
+      node.className = 'node';
+      node.textContent = content;
+      return node;
+    }
+    function addRear() {
+      const node = createNode(counter++);
+      node.style.opacity = 0;
+      deque.appendChild(node);
+      requestAnimationFrame(() => node.style.opacity = 1);
+    }
+    function addFront() {
+      const node = createNode(counter++);
+      node.style.opacity = 0;
+      deque.insertBefore(node, deque.firstChild);
+      requestAnimationFrame(() => node.style.opacity = 1);
+    }
+    function removeFront() {
+      const first = deque.firstChild;
+      if (!first) return;
+      first.style.opacity = 0;
+      first.addEventListener('transitionend', () => deque.removeChild(first), { once: true });
+    }
+    function removeRear() {
+      const last = deque.lastChild;
+      if (!last) return;
+      last.style.opacity = 0;
+      last.addEventListener('transitionend', () => deque.removeChild(last), { once: true });
+    }
+    function LengthDeque() {
+      alert("Current deque size : " + deque.children.length);
+    }
+    function clearDeque() {
+  const nodes = Array.from(deque.children);
+  if (!nodes.length) {
+    alert("Deque is already empty");
+    return;
+  }
+  nodes.forEach((node, index) => {
+    node.style.opacity = 0;
+    node.addEventListener('transitionend', () => {
+      if (node.parentNode === deque) deque.removeChild(node);
+    }, { once: true });
+  });
+}
+function searchValue() {
+  const val = prompt("Enter value to search:");
+  if (val === null) return;
+  const nodes = Array.from(deque.children);
+  let found = false;
+  nodes.forEach(node => {
+    node.style.background = '#fafafa'; // reset first
+    if (node.textContent === val) {
+      node.style.background = '#fdd'; // highlight
+      found = true;
+    }
+  });
+  if (!found) alert("Value not found in deque");
+}
+function insertAtPosition() {
+  const pos = parseInt(prompt("Enter position (0-based):"));
+  const val = prompt("Enter value to insert:");
+  if (isNaN(pos) || val === null) return;
+  const node = createNode(val);
+  node.style.opacity = 0;
+  const children = deque.children;
+  if (pos >= children.length) {
+    deque.appendChild(node);
+  } else {
+    deque.insertBefore(node, children[pos]);
+  }
+  requestAnimationFrame(() => node.style.opacity = 1);
+}
+  </script>
+</body>
+</html>
